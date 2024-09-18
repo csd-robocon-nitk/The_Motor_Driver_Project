@@ -14,12 +14,12 @@ int interruptPin;
 static int dirValue;             //dirValue = 1: Clockwise ; 0: Anticlockwise
 
 //PID controller parameter:
-kp = 1.0f;
-kd = 1.0f;
-ki = 1.0f;
-T = 1 ;
-setpoint = 100;
-measurement = 0;
+float kp = 1.0f;
+float kd = 1.0f;
+float ki = 1.0f;
+float T = 1 ;
+float setpoint = 100;
+float measurement = 0;
 
 void motorRun(float speed){
 	if(analogRead(pwm1)==HIGH){                             
