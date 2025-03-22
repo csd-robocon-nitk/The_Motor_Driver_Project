@@ -4,20 +4,9 @@
 #include "hardware/pwm.h"
 #include "hardware/adc.h"
 
+#include "pinmap.h"
+
 #define BEMF_EN 1
-
-// Low is active low
-// High is active high
-#define A_H 10
-#define A_L 11
-#define B_H 12
-#define B_L 13
-#define C_H 14
-#define C_L 15
-
-#define sense_A 18
-#define sense_B 19
-#define sense_C 20
 
 uint16_t pwm = 2000; //4050 max
 volatile uint8_t bldc_step = 0;
@@ -56,63 +45,63 @@ void bldc_move()
     switch (bldc_step)
     {
     case 0:
-        pwm_set_gpio_level(C_H, 0);
-        pwm_set_gpio_level(A_H, pwm);
-        gpio_put(B_L, 0);
-        gpio_put(A_L, 1);
+        pwm_set_gpio_level(phase_C_high, 0);
+        pwm_set_gpio_level(phase_A_high, pwm);
+        gpio_put(phase_B_low, 0);
+        gpio_put(phase_A_low, 1);
         #if BEMF_EN
-        gpio_set_irq_enabled_with_callback(sense_A, GPIO_IRQ_EDGE_FALL, false, update_step);
-        gpio_set_irq_enabled_with_callback(sense_C, GPIO_IRQ_EDGE_RISE, true, update_step);
+        gpio_set_irq_enabled_with_callback(sensor_A, GPIO_IRQ_EDGE_FALL, false, update_step);
+        gpio_set_irq_enabled_with_callback(sensor_C, GPIO_IRQ_EDGE_RISE, true, update_step);
         #endif
         break;
     case 1:
-        pwm_set_gpio_level(B_H, 0);
-        pwm_set_gpio_level(A_H, pwm);
-        gpio_put(C_L, 0);
-        gpio_put(B_L, 1);
+        pwm_set_gpio_level(phase_B_high, 0);
+        pwm_set_gpio_level(phase_A_high, pwm);
+        gpio_put(phase_C_low, 0);
+        gpio_put(phase_B_low, 1);
         #if BEMF_EN
-        gpio_set_irq_enabled_with_callback(sense_C, GPIO_IRQ_EDGE_RISE, false, update_step);
-        gpio_set_irq_enabled_with_callback(sense_B, GPIO_IRQ_EDGE_FALL, true, update_step);
+        gpio_set_irq_enabled_with_callback(sensor_C, GPIO_IRQ_EDGE_RISE, false, update_step);
+        gpio_set_irq_enabled_with_callback(sensor_B, GPIO_IRQ_EDGE_FALL, true, update_step);
         #endif
         break;
     case 2:
-        pwm_set_gpio_level(A_H, 0);
-        pwm_set_gpio_level(B_H, pwm);
-        gpio_put(C_L, 0);
-        gpio_put(B_L, 1);
+        pwm_set_gpio_level(phase_A_high, 0);
+        pwm_set_gpio_level(phase_B_high, pwm);
+        gpio_put(phase_C_low, 0);
+        gpio_put(phase_B_low, 1);
         #if BEMF_EN
-        gpio_set_irq_enabled_with_callback(sense_B, GPIO_IRQ_EDGE_FALL, false, update_step);
-        gpio_set_irq_enabled_with_callback(sense_A, GPIO_IRQ_EDGE_RISE, true, update_step);
+        gpio_set_irq_enabled_with_callback(sensor_B, GPIO_IRQ_EDGE_FALL, false, update_step);
+        gpio_set_irq_enabled_with_callback(sensor_A, GPIO_IRQ_EDGE_RISE, true, update_step);
         #endif
         break;
     case 3:
-        pwm_set_gpio_level(C_H, 0);
-        pwm_set_gpio_level(B_H, pwm);
-        gpio_put(A_L, 0);
-        gpio_put(C_L, 1);
+        pwm_set_gpio_level(phase_C_high, 0);
+        pwm_set_gpio_level(phase_B_high, pwm);
+        gpio_put(phase_A_low, 0);
+        gpio_put(phase_C_low, 1);
         #if BEMF_EN
-        gpio_set_irq_enabled_with_callback(sense_A, GPIO_IRQ_EDGE_RISE, false, update_step);
-        gpio_set_irq_enabled_with_callback(sense_C, GPIO_IRQ_EDGE_FALL, true, update_step);
+        gpio_set_irq_enabled_with_callback(sensor_A, GPIO_IRQ_EDGE_RISE, false, update_step);
+        gpio_set_irq_enabled_with_callback(sensor_C, GPIO_IRQ_EDGE_FALL, true, update_step);
         #endif
         break;
     case 4:
-        pwm_set_gpio_level(B_H, 0);
-        pwm_set_gpio_level(C_H, pwm);
-        gpio_put(A_L, 0);
-        gpio_put(C_L, 1);
+        pwm_set_gpio_level(phase_B_high, 0);
+        pwm_set_gpio_level(phase_C_high, pwm);
+        gpio_put(phase_A_low, 0);
+        gpio_put(phase_C_low, 1);
         #if BEMF_EN
-        gpio_set_irq_enabled_with_callback(sense_C, GPIO_IRQ_EDGE_FALL, false, update_step);
-        gpio_set_irq_enabled_with_callback(sense_B, GPIO_IRQ_EDGE_RISE, true, update_step);
+        gpio_set_irq_enabled_with_callback(sensor_C, GPIO_IRQ_EDGE_FALL, false, update_step);
+        gpio_set_irq_enabled_with_callback(sensor_B, GPIO_IRQ_EDGE_RISE, true, update_step);
         #endif
         break;
     case 5:
-        pwm_set_gpio_level(A_H, 0);
-        pwm_set_gpio_level(C_H, pwm);
-        gpio_put(B_L, 0);
-        gpio_put(A_L, 1);
+        pwm_set_gpio_level(phase_A_high, 0);
+        pwm_set_gpio_level(phase_C_high, pwm);
+        gpio_put(phase_B_low, 0);
+        gpio_put(phase_A_low, 1);
         #if BEMF_EN
-        gpio_set_irq_enabled_with_callback(sense_B, GPIO_IRQ_EDGE_RISE, false, update_step);
-        gpio_set_irq_enabled_with_callback(sense_A, GPIO_IRQ_EDGE_FALL, true, update_step);
+        gpio_set_irq_enabled_with_callback(sensor_B, GPIO_IRQ_EDGE_RISE, false, update_step);
+        gpio_set_irq_enabled_with_callback(sensor_A, GPIO_IRQ_EDGE_FALL, true, update_step);
         #endif
         break;
     }
@@ -121,20 +110,20 @@ void bldc_move()
 int main()
 {
     // BEMF
-    gpio_init_mask(1 << sense_A | 1 << sense_B | 1 << sense_C);
-    gpio_set_dir_in_masked(1 << sense_A | 1 << sense_B | 1 << sense_C);
-    // gpio_set_pulls(sense_A, true, false);
-    // gpio_set_pulls(sense_B, true, false);
-    // gpio_set_pulls(sense_C, true, false);
+    gpio_init_mask(1 << sensor_A | 1 << sensor_B | 1 << sensor_C);
+    gpio_set_dir_in_masked(1 << sensor_A | 1 << sensor_B | 1 << sensor_C);
+    // gpio_set_pulls(sensor_A, true, false);
+    // gpio_set_pulls(sensor_B, true, false);
+    // gpio_set_pulls(sensor_C, true, false);
 
     // PWM  
-    gpio_init_mask(1 << A_L | 1 << B_L | 1 << C_L);
+    gpio_init_mask(1 << phase_A_low | 1 << phase_B_low | 1 << phase_C_low);
     gpio_init_mask(1 << 25);
-    gpio_set_dir_out_masked(1 << A_L | 1 << B_L | 1 << C_L | 1 << 25);
-    gpio_set_function_masked(1 << A_H | 1 << B_H | 1 << C_H, GPIO_FUNC_PWM);
-    uint slice_num_1 = pwm_gpio_to_slice_num(A_H);
-    uint slice_num_2 = pwm_gpio_to_slice_num(B_H);
-    uint slice_num_3 = pwm_gpio_to_slice_num(C_H);
+    gpio_set_dir_out_masked(1 << phase_A_low | 1 << phase_B_low | 1 << phase_C_low | 1 << 25);
+    gpio_set_function_masked(1 << phase_A_high | 1 << phase_B_high | 1 << phase_C_high, GPIO_FUNC_PWM);
+    uint slice_num_1 = pwm_gpio_to_slice_num(phase_A_high);
+    uint slice_num_2 = pwm_gpio_to_slice_num(phase_B_high);
+    uint slice_num_3 = pwm_gpio_to_slice_num(phase_C_high);
     global_wrap = pwm_set_freq(slice_num_1, 31000);
     pwm_set_freq(slice_num_2, 31000);
     pwm_set_freq(slice_num_3, 31000);
@@ -151,21 +140,21 @@ int main()
 
     // GPIO Interrupt
     #if BEMF_EN
-    gpio_set_irq_enabled_with_callback(sense_A, GPIO_IRQ_EDGE_RISE, false, update_step);
-    gpio_set_irq_enabled_with_callback(sense_A, GPIO_IRQ_EDGE_FALL, false, update_step);
-    gpio_set_irq_enabled_with_callback(sense_B, GPIO_IRQ_EDGE_RISE, false, update_step);
-    gpio_set_irq_enabled_with_callback(sense_B, GPIO_IRQ_EDGE_FALL, false, update_step);
-    gpio_set_irq_enabled_with_callback(sense_C, GPIO_IRQ_EDGE_RISE, false, update_step);
-    gpio_set_irq_enabled_with_callback(sense_C, GPIO_IRQ_EDGE_FALL, false, update_step);
+    gpio_set_irq_enabled_with_callback(sensor_A, GPIO_IRQ_EDGE_RISE, false, update_step);
+    gpio_set_irq_enabled_with_callback(sensor_A, GPIO_IRQ_EDGE_FALL, false, update_step);
+    gpio_set_irq_enabled_with_callback(sensor_B, GPIO_IRQ_EDGE_RISE, false, update_step);
+    gpio_set_irq_enabled_with_callback(sensor_B, GPIO_IRQ_EDGE_FALL, false, update_step);
+    gpio_set_irq_enabled_with_callback(sensor_C, GPIO_IRQ_EDGE_RISE, false, update_step);
+    gpio_set_irq_enabled_with_callback(sensor_C, GPIO_IRQ_EDGE_FALL, false, update_step);
     #endif
 
-    gpio_put(A_L, 0);
-    gpio_put(B_L, 0);
-    gpio_put(C_L, 0);
+    gpio_put(phase_A_low, 0);
+    gpio_put(phase_B_low, 0);
+    gpio_put(phase_C_low, 0);
     sleep_ms(2000);
-    gpio_put(A_L, 1);
-    gpio_put(B_L, 1);
-    gpio_put(C_L, 1);
+    gpio_put(phase_A_low, 1);
+    gpio_put(phase_B_low, 1);
+    gpio_put(phase_C_low, 1);
     // gpio_put(25, 1);
 
     is_start = true;
