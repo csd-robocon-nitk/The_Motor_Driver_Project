@@ -3,3 +3,4 @@
 *.op.raw
 *.zip
 *.et
+.vscode/

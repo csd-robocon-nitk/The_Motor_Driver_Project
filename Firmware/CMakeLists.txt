@@ -15,45 +15,47 @@ if(WIN32)
 else()
     set(USERHOME $ENV{HOME})
 endif()
-set(sdkVersion 2.1.0)
-set(toolchainVersion 13_3_Rel1)
-set(picotoolVersion 2.1.0)
+set(sdkVersion 2.1.1)
+set(toolchainVersion 14_2_Rel1)
+set(picotoolVersion 2.1.1)
 set(picoVscode ${USERHOME}/.pico-sdk/cmake/pico-vscode.cmake)
 if (EXISTS ${picoVscode})
     include(${picoVscode})
 endif()
 # ====================================================================================
-set(PICO_BOARD pico2 CACHE STRING "Board type")
+set(PICO_BOARD pico CACHE STRING "Board type")
 
 # Pull in Raspberry Pi Pico SDK (must be before project)
 include(pico_sdk_import.cmake)
 
-project(Motor_Driver C CXX ASM)
+project(motor_driver C CXX ASM)
 
 # Initialise the Raspberry Pi Pico SDK
 pico_sdk_init()
 
 # Add executable. Default name is the project name, version 0.1
+include_directories(include)
+include_directories(src)
+add_executable(motor_driver motor_driver.c include/pinmap.h include/config.h include/bldc_drive.h src/bldc_drive.c include/utilities.h src/utilities.c)
 
-add_executable(Motor_Driver Motor_Driver.c )
-
-pico_set_program_name(Motor_Driver "Motor_Driver")
-pico_set_program_version(Motor_Driver "0.1")
+pico_set_program_name(motor_driver "motor_driver")
+pico_set_program_version(motor_driver "0.1")
 
 # Modify the below lines to enable/disable output over UART/USB
-pico_enable_stdio_uart(Motor_Driver 0)
-pico_enable_stdio_usb(Motor_Driver 1)
+pico_enable_stdio_uart(motor_driver 0)
+pico_enable_stdio_usb(motor_driver 1)
 
 # Add the standard library to the build
-target_link_libraries(Motor_Driver
+target_link_libraries(motor_driver
         pico_stdlib
         hardware_pwm
-        hardware_adc)
+        hardware_adc
+        hardware_uart)
 
 # Add the standard include files to the build
-target_include_directories(Motor_Driver PRIVATE
-  ${CMAKE_CURRENT_LIST_DIR}
+target_include_directories(motor_driver PRIVATE
+        ${CMAKE_CURRENT_LIST_DIR}
 )
 
-pico_add_extra_outputs(Motor_Driver)
+pico_add_extra_outputs(motor_driver)
 
