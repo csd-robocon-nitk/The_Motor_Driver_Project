@@ -6,8 +6,8 @@ volatile bool is_stall = false;
 int stall_count = 0;
 alarm_id_t stall_alarm;
 uint16_t target_pwm = 0;
-uint16_t pwm = 0;
-Motor_Dir dir = MOTOR_DIR_CW;
+uint16_t bldc_pwm = 0;
+Motor_Dir bldc_dir = MOTOR_DIR_CW;
 uint32_t cur_time = 0;
 uint32_t prev_time = 0;
 
@@ -71,13 +71,13 @@ int64_t stall_protection(alarm_id_t id, __unused void *user_data)
     printf("Stall Detected\n");
     #endif
     stall_count++;
-    pwm = 0;
+    bldc_pwm = 0;
     cancel_alarm(stall_alarm);
 }
 
 void update_step(uint gpio, uint32_t event_mask)
 {
-    if (pwm > PWM_THRESH)
+    if (bldc_pwm > PWM_THRESH)
     {
         cancel_alarm(stall_alarm);
         stall_alarm = add_alarm_in_ms(STALL_THRESH, stall_protection, NULL, false);
@@ -86,7 +86,7 @@ void update_step(uint gpio, uint32_t event_mask)
     {
         bldc_step++;
         bldc_step %= 6;
-        if(dir  == MOTOR_DIR_CW)
+        if(bldc_dir  == MOTOR_DIR_CW)
             bldc_move_cw();
         else
             bldc_move_ccw();
@@ -99,7 +99,7 @@ void bldc_move_cw()
     {
     case 0:
         pwm_set_gpio_level(phase_C_high, 0);
-        pwm_set_gpio_level(phase_A_high, pwm);
+        pwm_set_gpio_level(phase_A_high, bldc_pwm);
         gpio_put(phase_B_low, phase_Bl_high);
         gpio_put(phase_A_low, phase_Al_low);
         gpio_set_irq_enabled_with_callback(sensor_A, GPIO_IRQ_EDGE_FALL, false, update_step);
@@ -107,7 +107,7 @@ void bldc_move_cw()
         break;
     case 1:
         pwm_set_gpio_level(phase_B_high, 0);
-        pwm_set_gpio_level(phase_A_high, pwm);
+        pwm_set_gpio_level(phase_A_high, bldc_pwm);
         gpio_put(phase_C_low, phase_Cl_high);
         gpio_put(phase_B_low, phase_Bl_low);
         gpio_set_irq_enabled_with_callback(sensor_C, GPIO_IRQ_EDGE_RISE, false, update_step);
@@ -115,7 +115,7 @@ void bldc_move_cw()
         break;
     case 2:
         pwm_set_gpio_level(phase_A_high, 0);
-        pwm_set_gpio_level(phase_B_high, pwm);
+        pwm_set_gpio_level(phase_B_high, bldc_pwm);
         gpio_put(phase_C_low, phase_Cl_high);
         gpio_put(phase_B_low, phase_Bl_low);
         gpio_set_irq_enabled_with_callback(sensor_B, GPIO_IRQ_EDGE_FALL, false, update_step);
@@ -123,7 +123,7 @@ void bldc_move_cw()
         break;
     case 3:
         pwm_set_gpio_level(phase_C_high, 0);
-        pwm_set_gpio_level(phase_B_high, pwm);
+        pwm_set_gpio_level(phase_B_high, bldc_pwm);
         gpio_put(phase_A_low, phase_Al_high);
         gpio_put(phase_C_low, phase_Cl_low);
         gpio_set_irq_enabled_with_callback(sensor_A, GPIO_IRQ_EDGE_RISE, false, update_step);
@@ -131,7 +131,7 @@ void bldc_move_cw()
         break;
     case 4:
         pwm_set_gpio_level(phase_B_high, 0);
-        pwm_set_gpio_level(phase_C_high, pwm);
+        pwm_set_gpio_level(phase_C_high, bldc_pwm);
         gpio_put(phase_A_low, phase_Al_high);
         gpio_put(phase_C_low, phase_Cl_low);
         gpio_set_irq_enabled_with_callback(sensor_C, GPIO_IRQ_EDGE_FALL, false, update_step);
@@ -139,7 +139,7 @@ void bldc_move_cw()
         break;
     case 5:
         pwm_set_gpio_level(phase_A_high, 0);
-        pwm_set_gpio_level(phase_C_high, pwm);
+        pwm_set_gpio_level(phase_C_high, bldc_pwm);
         gpio_put(phase_B_low, phase_Bl_high);
         gpio_put(phase_A_low, phase_Al_low);
         gpio_set_irq_enabled_with_callback(sensor_B, GPIO_IRQ_EDGE_RISE, false, update_step);
@@ -154,7 +154,7 @@ void bldc_move_ccw()
     {
     case 0:
         pwm_set_gpio_level(phase_A_high, 0);
-        pwm_set_gpio_level(phase_C_high, pwm);
+        pwm_set_gpio_level(phase_C_high, bldc_pwm);
         gpio_put(phase_B_low, phase_Bl_high);
         gpio_put(phase_A_low, phase_Al_low);
         gpio_set_irq_enabled_with_callback(sensor_C, GPIO_IRQ_EDGE_FALL, false, update_step);
@@ -162,7 +162,7 @@ void bldc_move_ccw()
         break;
     case 1:
         pwm_set_gpio_level(phase_B_high, 0);
-        pwm_set_gpio_level(phase_C_high, pwm);
+        pwm_set_gpio_level(phase_C_high, bldc_pwm);
         gpio_put(phase_A_low, phase_Al_high);
         gpio_put(phase_B_low, phase_Bl_low);
         gpio_set_irq_enabled_with_callback(sensor_A, GPIO_IRQ_EDGE_RISE, false, update_step);
@@ -170,7 +170,7 @@ void bldc_move_ccw()
         break;
     case 2:
         pwm_set_gpio_level(phase_C_high, 0);
-        pwm_set_gpio_level(phase_B_high, pwm);
+        pwm_set_gpio_level(phase_B_high, bldc_pwm);
         gpio_put(phase_A_low, phase_Al_high);
         gpio_put(phase_C_low, phase_Cl_low);
         gpio_set_irq_enabled_with_callback(sensor_B, GPIO_IRQ_EDGE_FALL, false, update_step);
@@ -178,7 +178,7 @@ void bldc_move_ccw()
         break;
     case 3:
         pwm_set_gpio_level(phase_A_high, 0);
-        pwm_set_gpio_level(phase_B_high, pwm);
+        pwm_set_gpio_level(phase_B_high, bldc_pwm);
         gpio_put(phase_C_low, phase_Cl_high);
         gpio_put(phase_A_low, phase_Al_low);
         gpio_set_irq_enabled_with_callback(sensor_C, GPIO_IRQ_EDGE_RISE, false, update_step);
@@ -186,7 +186,7 @@ void bldc_move_ccw()
         break;
     case 4:
         pwm_set_gpio_level(phase_B_high, 0);
-        pwm_set_gpio_level(phase_A_high, pwm);
+        pwm_set_gpio_level(phase_A_high, bldc_pwm);
         gpio_put(phase_C_low, phase_Cl_high);
         gpio_put(phase_B_low, phase_Bl_low);
         gpio_set_irq_enabled_with_callback(sensor_A, GPIO_IRQ_EDGE_FALL, false, update_step);
@@ -194,7 +194,7 @@ void bldc_move_ccw()
         break;
     case 5:
         pwm_set_gpio_level(phase_C_high, 0);
-        pwm_set_gpio_level(phase_A_high, pwm);
+        pwm_set_gpio_level(phase_A_high, bldc_pwm);
         gpio_put(phase_B_low, phase_Bl_high);
         gpio_put(phase_C_low, phase_Cl_low);
         gpio_set_irq_enabled_with_callback(sensor_B, GPIO_IRQ_EDGE_RISE, false, update_step);
@@ -209,12 +209,12 @@ void set_bldc_pwm_from_analog(uint16_t val)
     if (val >= 2048)
     {
         target_pwm = (val - 2048) * 2;
-        dir = MOTOR_DIR_CW;
+        bldc_dir = MOTOR_DIR_CW;
     }
     else
     {
         target_pwm = (2048 - val) * 2;
-        dir = MOTOR_DIR_CCW;
+        bldc_dir = MOTOR_DIR_CCW;
     }
     #else
     target_pwm = val;
@@ -239,9 +239,9 @@ void set_bldc_pwm_from_uart(char *val)
     {
         int value = atoi(val + 2);
         if (value == 0)
-            dir = MOTOR_DIR_CW;
+            bldc_dir = MOTOR_DIR_CW;
         else if (value == 1)
-            dir = MOTOR_DIR_CCW;
+            bldc_dir = MOTOR_DIR_CCW;
         #if DEBUG_EN
         else
             printf("Invalid Direction value: %d\n", val);
@@ -259,7 +259,7 @@ void bldc_loop()
         printf("Stall recovery attempts maxed out. Reset ESC.\n");
         #endif
     }
-    else if (pwm < PWM_THRESH)
+    else if (bldc_pwm < PWM_THRESH)
     {
         pwm_set_gpio_level(phase_A_high, 0);
         pwm_set_gpio_level(phase_B_high, 0);
@@ -292,9 +292,9 @@ void bldc_loop()
     if (cur_time - prev_time >= 10000)
     {
         prev_time = cur_time;
-        if (pwm < target_pwm)
-            pwm += 1;
-        else if (pwm > target_pwm)
-            pwm -= 1;
+        if (bldc_pwm < target_pwm)
+            bldc_pwm += 1;
+        else if (bldc_pwm > target_pwm)
+            bldc_pwm -= 1;
     }
 }
