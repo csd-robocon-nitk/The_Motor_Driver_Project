@@ -1,0 +1,6 @@
+*.log
+*.raw
+*.op.raw
+*.zip
+*.et
+.vscode/
