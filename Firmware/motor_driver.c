@@ -2,7 +2,12 @@
 
 #include "config.h"
 #include "utilities.h"
+
+#if BLDC_MODE
 #include "bldc_drive.h"
+#elif BDC_MODE
+#include "bdc_drive.h"
+#endif
 
 #if BLDC_MODE && BDC_MODE
 #error "BLDC_MODE and BDC_MODE cannot be both set to 1"
@@ -50,6 +55,26 @@ int main()
         free(usb_val);
         #endif
         bldc_loop();
+    }
+    #endif
+
+    #if BDC_MODE
+    bdc_init();
+    while (true)
+    {
+        #if ANALOG_INPUT
+        set_bdc_pwm_from_analog(read_analog_signal());
+        #endif
+        #if UART_INPUT
+        char *uart_val = read_uart_signal();
+        set_bdc_pwm_from_uart(uart_val);
+        free(uart_val);
+        #endif
+        #if USB_SERIAL_INPUT
+        char *usb_val = read_usb_serial_signal();
+        set_bdc_pwm_from_uart(usb_val);
+        free(usb_val);
+        #endif
     }
     #endif
 

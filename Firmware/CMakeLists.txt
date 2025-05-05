@@ -36,7 +36,7 @@ pico_sdk_init()
 # Add executable. Default name is the project name, version 0.1
 include_directories(include)
 include_directories(src)
-add_executable(motor_driver motor_driver.c include/pinmap.h include/config.h include/bldc_drive.h src/bldc_drive.c include/utilities.h src/utilities.c)
+add_executable(motor_driver motor_driver.c include/pinmap.h include/config.h include/bldc_drive.h src/bldc_drive.c include/bdc_drive.h src/bdc_drive.c include/utilities.h src/utilities.c)
 
 pico_set_program_name(motor_driver "motor_driver")
 pico_set_program_version(motor_driver "0.1")
